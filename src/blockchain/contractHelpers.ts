@@ -1,18 +1,17 @@
 import UnipoolJson from '@/abi/UnipoolTokenDistributor.json';
-import {
-	StakedEvent,
-	UnipoolTokenDistributor,
-} from '@/types/contracts/UnipoolTokenDistributor';
-import { ContractInterface, ethers } from 'ethers';
+import { UnipoolTokenDistributor } from '@/types/contracts/UnipoolTokenDistributor';
+import { ethers } from 'ethers';
 import { EventConfig } from '@/src/blockchain/contracts';
+import { Fragment, JsonFragment } from '@ethersproject/abi';
 
 export interface ContractHelper {
-	getAbi(): ContractInterface;
+	getAbi(): ReadonlyArray<Fragment | JsonFragment | string>;
+
 	getEventConfig(contract: ethers.Contract): EventConfig[];
 }
 
 export class UnipoolHelper implements ContractHelper {
-	getAbi(): ContractInterface {
+	getAbi() {
 		return UnipoolJson.abi;
 	}
 
@@ -21,10 +20,19 @@ export class UnipoolHelper implements ContractHelper {
 		return [
 			{
 				filter: unipoolContract.filters.Staked(),
-				transformFn: (event: StakedEvent) => {
-					const { user, amount } = event.args;
+				transformFn: (logDescription: ethers.utils.LogDescription) => {
+					const { user, amount } = logDescription.args;
 					return {
-						name: 'Staked',
+						user,
+						amount: ethers.utils.formatEther(amount),
+					};
+				},
+			},
+			{
+				filter: unipoolContract.filters.Withdrawn(),
+				transformFn: (logDescription: ethers.utils.LogDescription) => {
+					const { user, amount } = logDescription.args;
+					return {
 						user,
 						amount: ethers.utils.formatEther(amount),
 					};

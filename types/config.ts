@@ -7,9 +7,8 @@ export interface ContractConfig {
 	type: ContractType;
 }
 export interface ChainConfig {
-	name: string;
+	networkId: number;
 	nodeUrl: string;
-	explorerLink: string;
 	contracts: ContractConfig[];
 }
 

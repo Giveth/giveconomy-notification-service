@@ -6,7 +6,7 @@ const service = async () => {
 
 	return await Promise.all(
 		monitoredChains.map(async monitoredChain => {
-			const { name, nodeUrl, contracts, explorerLink } = monitoredChain;
+			const { networkId, nodeUrl, contracts } = monitoredChain;
 
 			const contractEventFetchers = contracts.map(
 				contract => new ContractEventFetcher(contract, nodeUrl),
@@ -23,8 +23,7 @@ const service = async () => {
 			return events.map(event => {
 				return {
 					...event,
-					url: explorerLink + '/' + event.transactionHash,
-					network: name,
+					network: networkId,
 				};
 			});
 		}),

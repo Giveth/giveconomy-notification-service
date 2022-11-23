@@ -8,9 +8,14 @@ import {
 	UnipoolHelper,
 } from '@/src/blockchain/contractHelpers';
 
+export type EventTransformFn = (
+	logDescription: ethers.utils.LogDescription,
+) => {
+	[key: string]: any;
+};
 export type EventConfig = {
 	filter: EventFilter;
-	transformFn: (event: TypedEvent) => { name: string; [key: string]: any };
+	transformFn: EventTransformFn;
 };
 
 export interface EventData {
@@ -29,7 +34,8 @@ const getContractHelper = (type: ContractType): ContractHelper => {
 };
 
 export class ContractEventFetcher {
-	private contract: ethers.Contract;
+	private readonly contract: ethers.Contract;
+	private readonly iface: ethers.utils.Interface;
 	private contractHelper: ContractHelper;
 	constructor(
 		private readonly contractConfig: ContractConfig,
@@ -42,6 +48,7 @@ export class ContractEventFetcher {
 			this.contractHelper.getAbi(),
 			provider,
 		);
+		this.iface = new ethers.utils.Interface(this.contractHelper.getAbi());
 	}
 
 	async fetchEvents(
@@ -50,30 +57,40 @@ export class ContractEventFetcher {
 	): Promise<EventData[]> {
 		const eventConfigs = this.contractHelper.getEventConfig(this.contract);
 
-		const fetchSingleEvent = async (
-			eventConfig: EventConfig,
-		): Promise<EventData[]> => {
-			const events = await this.contract.queryFilter(
-				eventConfig.filter,
-				fromBlock,
-				toBlock,
-			);
-			return Promise.all(
-				(events as TypedEvent[]).map(
-					async (event: TypedEvent): Promise<EventData> => {
-						const { transactionHash, getBlock, logIndex } = event;
-						const block = await getBlock();
-						return {
-							transactionHash,
-							logIndex,
-							timestamp: block.timestamp,
-							contractTitle: this.contractConfig.title,
-							...eventConfig.transformFn(event),
-						};
-					},
-				),
-			);
+		const eventTopicToTransform: { [topic: string]: EventTransformFn } = {};
+		const eventsSignatures: string[] = [];
+		eventConfigs.forEach(eventConfig => {
+			const [eventSignature] = eventConfig.filter?.topics as string[];
+			eventTopicToTransform[eventSignature] = eventConfig.transformFn;
+			eventsSignatures.push(eventSignature);
+		});
+
+		const combinedFilter: EventFilter = {
+			address: this.contract.address,
+			topics: [eventsSignatures],
 		};
-		return (await Promise.all(eventConfigs.map(fetchSingleEvent))).flat();
+		const events = await this.contract.queryFilter(
+			combinedFilter,
+			fromBlock,
+			toBlock,
+		);
+		return Promise.all(
+			(events as TypedEvent[]).map(
+				async (event: TypedEvent): Promise<EventData> => {
+					const { transactionHash, getBlock, logIndex } = event;
+					const block = await getBlock();
+					const logDescription = this.iface.parseLog(event);
+					const transformFn = eventTopicToTransform[event.topics[0]];
+					return {
+						transactionHash,
+						logIndex,
+						timestamp: block.timestamp,
+						contractTitle: this.contractConfig.title,
+						name: logDescription.name,
+						...transformFn(logDescription),
+					};
+				},
+			),
+		);
 	}
 }
