@@ -1,13 +1,12 @@
-import { ContractInterface, ethers, EventFilter } from 'ethers';
-import UnipoolJson from '@/abi/UnipoolTokenDistributor.json';
-import {
-	StakedEvent,
-	UnipoolTokenDistributor,
-} from '@/types/contracts/UnipoolTokenDistributor';
+import { ethers, EventFilter } from 'ethers';
 import { TypedEvent } from '@/types/contracts/common';
 import { ContractConfig } from '@/types/config';
 import { ContractType } from '@/src/blockchain/commons';
 import { BlockTag } from '@ethersproject/abstract-provider/src.ts';
+import {
+	ContractHelper,
+	UnipoolHelper,
+} from '@/src/blockchain/contractHelpers';
 
 export type EventConfig = {
 	filter: EventFilter;
@@ -17,12 +16,9 @@ export type EventConfig = {
 export interface EventData {
 	transactionHash: string;
 	contractTitle: string;
-	[key: string]: string;
-}
-
-interface ContractHelper {
-	getAbi(): ContractInterface;
-	getEventConfig(contract: ethers.Contract): EventConfig[];
+	logIndex: number;
+	timestamp: number;
+	[key: string]: string | number;
 }
 
 const getContractHelper = (type: ContractType): ContractHelper => {
@@ -62,40 +58,22 @@ export class ContractEventFetcher {
 				fromBlock,
 				toBlock,
 			);
-			return (events as TypedEvent[]).map(
-				(event: TypedEvent): EventData => {
-					const { transactionHash } = event;
-					return {
-						transactionHash,
-						contractTitle: this.contractConfig.title,
-						...eventConfig.transformFn(event),
-					};
-				},
+			return Promise.all(
+				(events as TypedEvent[]).map(
+					async (event: TypedEvent): Promise<EventData> => {
+						const { transactionHash, getBlock, logIndex } = event;
+						const block = await getBlock();
+						return {
+							transactionHash,
+							logIndex,
+							timestamp: block.timestamp,
+							contractTitle: this.contractConfig.title,
+							...eventConfig.transformFn(event),
+						};
+					},
+				),
 			);
 		};
 		return (await Promise.all(eventConfigs.map(fetchSingleEvent))).flat();
-	}
-}
-
-export class UnipoolHelper implements ContractHelper {
-	getAbi(): ContractInterface {
-		return UnipoolJson.abi;
-	}
-
-	getEventConfig(contract: ethers.Contract): EventConfig[] {
-		const unipoolContract = contract as UnipoolTokenDistributor;
-		return [
-			{
-				filter: unipoolContract.filters.Staked(),
-				transformFn: (event: StakedEvent) => {
-					const { user, amount } = event.args;
-					return {
-						name: 'Staked',
-						user,
-						amount: ethers.utils.formatEther(amount),
-					};
-				},
-			},
-		];
 	}
 }
