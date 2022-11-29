@@ -2,7 +2,7 @@ import { ethers, EventFilter } from 'ethers';
 import { TypedEvent } from '@/types/contracts/common';
 import { ContractConfig } from '@/types/config';
 import { ContractType } from '@/src/blockchain/commons';
-import { BlockTag } from '@ethersproject/abstract-provider/src.ts';
+import logger from '@/src/utils/logger';
 import {
 	ContractHelper,
 	UnipoolHelper,
@@ -37,11 +37,13 @@ export class ContractEventFetcher {
 	private readonly contract: ethers.Contract;
 	private readonly iface: ethers.utils.Interface;
 	private contractHelper: ContractHelper;
+	private _isFetching: boolean;
+	private fromBlock: number;
 	constructor(
 		private readonly contractConfig: ContractConfig,
-		private readonly nodeUrl: string,
+		private provider: ethers.providers.Provider,
 	) {
-		const provider = new ethers.providers.JsonRpcProvider(nodeUrl);
+		this.fromBlock = contractConfig.startBlock; // TODO: save latest fetched block somewhere and retrive on restart
 		this.contractHelper = getContractHelper(contractConfig.type);
 		this.contract = new ethers.Contract(
 			contractConfig.address,
@@ -51,10 +53,22 @@ export class ContractEventFetcher {
 		this.iface = new ethers.utils.Interface(this.contractHelper.getAbi());
 	}
 
+	get isFetching(): boolean {
+		return this._isFetching;
+	}
+
 	async fetchEvents(
-		fromBlock?: BlockTag,
-		toBlock?: BlockTag,
-	): Promise<EventData[]> {
+		toBlock: number,
+		maxFetchBlockRange: number,
+		sendEvents: (events: EventData[]) => void,
+	): Promise<void> {
+		if (this._isFetching) {
+			logger.info(
+				`Still fetching contract ${this.contractConfig.title} events`,
+			);
+			return;
+		}
+		if (this.fromBlock >= toBlock) return;
 		const eventConfigs = this.contractHelper.getEventConfig(this.contract);
 
 		const eventTopicToTransform: { [topic: string]: EventTransformFn } = {};
@@ -69,28 +83,57 @@ export class ContractEventFetcher {
 			address: this.contract.address,
 			topics: [eventsSignatures],
 		};
-		const events = await this.contract.queryFilter(
-			combinedFilter,
-			fromBlock,
-			toBlock,
-		);
-		return Promise.all(
-			(events as TypedEvent[]).map(
-				async (event: TypedEvent): Promise<EventData> => {
-					const { transactionHash, getBlock, logIndex } = event;
-					const block = await getBlock();
-					const logDescription = this.iface.parseLog(event);
-					const transformFn = eventTopicToTransform[event.topics[0]];
-					return {
-						transactionHash,
-						logIndex,
-						timestamp: block.timestamp,
-						contractTitle: this.contractConfig.title,
-						name: logDescription.name,
-						...transformFn(logDescription),
-					};
-				},
-			),
-		);
+
+		try {
+			this._isFetching = true;
+
+			while (true) {
+				const _toBlock = Math.min(
+					this.fromBlock + maxFetchBlockRange,
+					toBlock,
+				);
+
+				logger.debug(
+					`Fetch contract ${this.contractConfig.title} events - blocks ${this.fromBlock}-${_toBlock}`,
+				);
+				const events = await this.contract.queryFilter(
+					combinedFilter,
+					this.fromBlock + 1,
+					_toBlock,
+				);
+				const result = await Promise.all(
+					(events as TypedEvent[]).map(
+						async (event: TypedEvent): Promise<EventData> => {
+							const { transactionHash, getBlock, logIndex } =
+								event;
+							const block = await getBlock();
+							const logDescription = this.iface.parseLog(event);
+							const transformFn =
+								eventTopicToTransform[event.topics[0]];
+							return {
+								transactionHash,
+								logIndex,
+								timestamp: block.timestamp,
+								contractTitle: this.contractConfig.title,
+								name: logDescription.name,
+								...transformFn(logDescription),
+							};
+						},
+					),
+				);
+
+				await sendEvents(result);
+
+				this.fromBlock = _toBlock;
+
+				if (_toBlock >= toBlock) {
+					break;
+				}
+			}
+		} catch (e) {
+			logger.error(`Fetch error: ${e}`);
+		} finally {
+			this._isFetching = false;
+		}
 	}
 }

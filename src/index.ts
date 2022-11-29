@@ -1,10 +1,7 @@
-import service from './service';
+import service from '@/src/service/service';
 
 async function main() {
-	const result = await service();
-	// tslint:disable-next-line:no-console
-	console.log(result);
-	// setInterval(service, 1000);
+	await service();
 }
 
 main();

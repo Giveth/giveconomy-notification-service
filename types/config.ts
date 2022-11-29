@@ -9,6 +9,9 @@ export interface ContractConfig {
 export interface ChainConfig {
 	networkId: number;
 	nodeUrl: string;
+	nodeUrlWS?: string;
+	pollTimeMS: number;
+	maxFetchBlockRange: number;
 	contracts: ContractConfig[];
 }
 

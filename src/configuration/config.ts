@@ -8,11 +8,14 @@ export const config: Config = {
 		{
 			networkId: 100, // Gnosis-chain
 			nodeUrl: 'https://rpc.ankr.com/gnosis',
+			nodeUrlWS: 'wss://rpc.gnosischain.com/wss',
+			pollTimeMS: 10_000, // 30 Seconds
+			maxFetchBlockRange: 1_000,
 			contracts: [
 				{
 					address: '0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2',
 					title: 'GIVPower',
-					startBlock: 25102627,
+					startBlock: 25215585,
 					type: ContractType.Unipool,
 				},
 			],
