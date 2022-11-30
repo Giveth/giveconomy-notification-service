@@ -1,24 +1,9 @@
 import { Config } from '@/types/config';
-import { ContractType } from '@/src/blockchain/commons';
+import { config as developConfig } from '@/config/develop';
 
-export const config: Config = {
-	databaseConnectionUrl: '',
-	env: 'develop',
-	monitoredChains: [
-		{
-			networkId: 100, // Gnosis-chain
-			nodeUrl: 'https://rpc.ankr.com/gnosis',
-			nodeUrlWS: 'wss://rpc.gnosischain.com/wss',
-			pollTimeMS: 10_000, // 30 Seconds
-			maxFetchBlockRange: 1_000,
-			contracts: [
-				{
-					address: '0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2',
-					title: 'GIVPower',
-					startBlock: 25215585,
-					type: ContractType.Unipool,
-				},
-			],
-		},
-	],
+export const getEnv = (): 'develop' | 'production' => {
+	return process.env.NODE_ENV === 'production' ? 'production' : 'develop';
 };
+
+export const config: Config =
+	getEnv() === 'develop' ? developConfig : developConfig;

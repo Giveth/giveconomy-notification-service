@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=develop ts-node --project ./tsconfig.json ./src/index.ts",
+    "start": "NODE_ENV=develop ts-node --project ./tsconfig.json index.ts",
     "tslint": "tslint -c tslint.json '{src,test,types}/**/*.ts'",
     "tslint:fix": "tslint -c tslint.json --fix '{src,test,types}/**/*.ts'",
     "clean": "rm -rf build",
@@ -29,9 +29,11 @@
   "homepage": "https://github.com/Giveth/giveconomy-notification-service#readme",
   "dependencies": {
     "@ethersproject/abstract-provider": "^5.7.0",
+    "async-mutex": "^0.4.0",
     "dotenv": "^16.0.1",
     "ethers": "^5.7.2",
     "patch-package": "^6.5.0",
+    "sqlite3": "^5.1.2",
     "typescript": "^4.9.3",
     "web3": "^1.8.1",
     "web3-providers-ws": "^1.8.1",
@@ -39,6 +41,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.9",
+    "@types/sqlite3": "^3.1.8",
     "prettier": "^2.4.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.0",

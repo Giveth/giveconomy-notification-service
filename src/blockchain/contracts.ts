@@ -7,6 +7,10 @@ import {
 	ContractHelper,
 	UnipoolHelper,
 } from '@/src/blockchain/contractHelpers';
+import {
+	getContractLastBlock,
+	setContractLastBlock,
+} from '@/src/repository/database';
 
 export type EventTransformFn = (
 	logDescription: ethers.utils.LogDescription,
@@ -42,8 +46,8 @@ export class ContractEventFetcher {
 	constructor(
 		private readonly contractConfig: ContractConfig,
 		private provider: ethers.providers.Provider,
+		private readonly network: number,
 	) {
-		this.fromBlock = contractConfig.startBlock; // TODO: save latest fetched block somewhere and retrive on restart
 		this.contractHelper = getContractHelper(contractConfig.type);
 		this.contract = new ethers.Contract(
 			contractConfig.address,
@@ -67,6 +71,15 @@ export class ContractEventFetcher {
 				`Still fetching contract ${this.contractConfig.title} events`,
 			);
 			return;
+		}
+		if (!this.fromBlock) {
+			const dbFromBlock = await getContractLastBlock(
+				this.contractConfig.address,
+				this.network,
+			);
+			this.fromBlock = dbFromBlock
+				? dbFromBlock
+				: this.contractConfig.startBlock;
 		}
 		if (this.fromBlock >= toBlock) return;
 		const eventConfigs = this.contractHelper.getEventConfig(this.contract);
@@ -127,6 +140,11 @@ export class ContractEventFetcher {
 				this.fromBlock = _toBlock;
 
 				if (_toBlock >= toBlock) {
+					await setContractLastBlock(
+						this.contractConfig.address,
+						this.network,
+						this.fromBlock,
+					);
 					break;
 				}
 			}

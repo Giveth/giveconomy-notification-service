@@ -14,11 +14,12 @@ export class MonitorChain {
 	private poolTimeOut: NodeJS.Timeout;
 
 	constructor(readonly chainConfig: ChainConfig) {
-		const { nodeUrl, contracts, nodeUrlWS } = chainConfig;
+		const { nodeUrl, contracts, nodeUrlWS, networkId } = chainConfig;
 
 		this.provider = new ethers.providers.JsonRpcProvider(nodeUrl);
 		this.contractEventFetchers = contracts.map(
-			contract => new ContractEventFetcher(contract, this.provider),
+			contract =>
+				new ContractEventFetcher(contract, this.provider, networkId),
 		);
 
 		if (nodeUrlWS) {
