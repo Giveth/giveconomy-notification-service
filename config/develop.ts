@@ -7,16 +7,37 @@ export const config: Config = {
 	monitoredChains: [
 		{
 			networkId: 100, // Gnosis-chain
-			nodeUrl: 'https://rpc.ankr.com/gnosis',
-			nodeUrlWS: 'wss://rpc.gnosischain.com/wss',
+			nodeUrl: process.env.GNOSIS_PROVIDER as string,
+			nodeUrlWS: process.env.GNOSIS_PROVIDER_WS,
 			pollTimeMS: 10_000, // 30 Seconds
 			maxFetchBlockRange: 1_000,
 			contracts: [
 				{
-					address: '0xD93d3bDBa18ebcB3317a57119ea44ed2Cf41C2F2',
+					address: '0xDAEa66Adc97833781139373DF5B3bcEd3fdda5b1',
 					title: 'GIVPower',
-					startBlock: 25215585,
+					startBlock: 25230777,
 					type: ContractType.Unipool,
+				},
+				{
+					address: '0x93c40bCA6a854B2190a054136a316C4Df7f89f10',
+					title: 'FOX/DAI',
+					startBlock: 25240777,
+					type: ContractType.Unipool,
+				},
+			],
+		},
+		{
+			networkId: 5, // Görli
+			nodeUrl: process.env.GOERLI_PROVIDER as string,
+			nodeUrlWS: process.env.GOERLI_PROVIDER_WS,
+			pollTimeMS: 240_000, // 24 seconds
+			maxFetchBlockRange: 1_000,
+			contracts: [
+				{
+					address: '0x887673d8295aF9BE0D8e12412c2B87a49cFcd7bd',
+					type: ContractType.Unipool,
+					startBlock: 8053499,
+					title: 'GIV/ETH Balancer',
 				},
 			],
 		},

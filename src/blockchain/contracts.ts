@@ -101,17 +101,18 @@ export class ContractEventFetcher {
 			this._isFetching = true;
 
 			while (true) {
+				const _fromBlock = this.fromBlock + 1;
 				const _toBlock = Math.min(
 					this.fromBlock + maxFetchBlockRange,
 					toBlock,
 				);
 
 				logger.debug(
-					`Fetch contract ${this.contractConfig.title} events - blocks ${this.fromBlock}-${_toBlock}`,
+					`Fetch contract ${this.contractConfig.title} events - blocks ${_fromBlock}-${_toBlock}`,
 				);
 				const events = await this.contract.queryFilter(
 					combinedFilter,
-					this.fromBlock + 1,
+					_fromBlock,
 					_toBlock,
 				);
 				const result = await Promise.all(

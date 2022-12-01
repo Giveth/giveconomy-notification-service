@@ -102,6 +102,7 @@ export class MonitorChain {
 					networkLatestBlock,
 					this.chainConfig.maxFetchBlockRange,
 					events => {
+						if (events.length === 0) return;
 						// tslint:disable-next-line:no-console
 						console.log(
 							events.map(event => {
