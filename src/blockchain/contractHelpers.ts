@@ -1,13 +1,16 @@
 import UnipoolJson from '@/abi/UnipoolTokenDistributor.json';
 import { UnipoolTokenDistributor } from '@/types/contracts/UnipoolTokenDistributor';
 import { ethers } from 'ethers';
-import { EventConfig } from '@/src/blockchain/contracts';
+import { EventFilterAndTransform } from '@/src/blockchain/contracts';
 import { Fragment, JsonFragment } from '@ethersproject/abi';
+import { NotificationEventType } from '@/src/notificationCenter/NotificationCenterAdapter';
 
 export interface ContractHelper {
 	getAbi(): ReadonlyArray<Fragment | JsonFragment | string>;
 
-	getEventConfig(contract: ethers.Contract): EventConfig[];
+	getEventFilterAndTransform(
+		contract: ethers.Contract,
+	): EventFilterAndTransform[];
 }
 
 export class UnipoolHelper implements ContractHelper {
@@ -15,7 +18,9 @@ export class UnipoolHelper implements ContractHelper {
 		return UnipoolJson.abi;
 	}
 
-	getEventConfig(contract: ethers.Contract): EventConfig[] {
+	getEventFilterAndTransform(
+		contract: ethers.Contract,
+	): EventFilterAndTransform[] {
 		const unipoolContract = contract as UnipoolTokenDistributor;
 		return [
 			{
@@ -25,6 +30,7 @@ export class UnipoolHelper implements ContractHelper {
 					return {
 						user,
 						amount: ethers.utils.formatEther(amount),
+						notificationEventType: NotificationEventType.STAKE,
 					};
 				},
 			},
@@ -35,6 +41,7 @@ export class UnipoolHelper implements ContractHelper {
 					return {
 						user,
 						amount: ethers.utils.formatEther(amount),
+						notificationEventType: NotificationEventType.UNSTAKE,
 					};
 				},
 			},

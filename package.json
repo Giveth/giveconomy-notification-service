@@ -30,6 +30,7 @@
   "dependencies": {
     "@ethersproject/abstract-provider": "^5.7.0",
     "async-mutex": "^0.4.0",
+    "axios": "^1.2.0",
     "dotenv": "^16.0.1",
     "ethers": "^5.7.2",
     "patch-package": "^6.5.0",

@@ -11,24 +11,30 @@ import {
 	getContractLastBlock,
 	setContractLastBlock,
 } from '@/src/repository/database';
+import {
+	NotificationCenterAdapter,
+	NotificationEventType,
+} from '@/src/notificationCenter/NotificationCenterAdapter';
 
 export type EventTransformFn = (
 	logDescription: ethers.utils.LogDescription,
 ) => {
-	[key: string]: any;
+	user: string;
+	amount: string;
+	notificationEventType: NotificationEventType;
 };
-export type EventConfig = {
+export type EventFilterAndTransform = {
 	filter: EventFilter;
 	transformFn: EventTransformFn;
 };
 
-export interface EventData {
-	transactionHash: string;
-	contractTitle: string;
-	logIndex: number;
-	timestamp: number;
-	[key: string]: string | number;
-}
+// export interface EventData {
+// 	transactionHash: string;
+// 	contractTitle: string;
+// 	logIndex: number;
+// 	timestamp: number;
+// 	[key: string]: string | number;
+// }
 
 const getContractHelper = (type: ContractType): ContractHelper => {
 	switch (type) {
@@ -57,14 +63,9 @@ export class ContractEventFetcher {
 		this.iface = new ethers.utils.Interface(this.contractHelper.getAbi());
 	}
 
-	get isFetching(): boolean {
-		return this._isFetching;
-	}
-
 	async fetchEvents(
 		toBlock: number,
 		maxFetchBlockRange: number,
-		sendEvents: (events: EventData[]) => void,
 	): Promise<void> {
 		if (this._isFetching) {
 			logger.info(
@@ -82,7 +83,9 @@ export class ContractEventFetcher {
 				: this.contractConfig.startBlock;
 		}
 		if (this.fromBlock >= toBlock) return;
-		const eventConfigs = this.contractHelper.getEventConfig(this.contract);
+		const eventConfigs = this.contractHelper.getEventFilterAndTransform(
+			this.contract,
+		);
 
 		const eventTopicToTransform: { [topic: string]: EventTransformFn } = {};
 		const eventsSignatures: string[] = [];
@@ -115,37 +118,43 @@ export class ContractEventFetcher {
 					_fromBlock,
 					_toBlock,
 				);
-				const result = await Promise.all(
-					(events as TypedEvent[]).map(
-						async (event: TypedEvent): Promise<EventData> => {
-							const { transactionHash, getBlock, logIndex } =
-								event;
-							const block = await getBlock();
-							const logDescription = this.iface.parseLog(event);
-							const transformFn =
-								eventTopicToTransform[event.topics[0]];
-							return {
+				await Promise.all(
+					(events as TypedEvent[]).map(async (event: TypedEvent) => {
+						const { transactionHash, getBlock, logIndex } = event;
+						const block = await getBlock();
+						const logDescription = this.iface.parseLog(event);
+						const transformFn =
+							eventTopicToTransform[event.topics[0]];
+
+						const { user, amount, notificationEventType } =
+							transformFn(logDescription);
+
+						await NotificationCenterAdapter.sendNotification({
+							metadata: {
 								transactionHash,
-								logIndex,
-								timestamp: block.timestamp,
-								contractTitle: this.contractConfig.title,
-								name: logDescription.name,
-								...transformFn(logDescription),
-							};
-						},
-					),
+								amount,
+								network: this.network,
+								poolName: this.contractConfig.title,
+							},
+							logIndex,
+							timestamp: block.timestamp,
+							userAddress: user,
+							eventType: notificationEventType,
+						});
+					}),
 				);
 
-				await sendEvents(result);
+				// await sendEvents(result);
 
 				this.fromBlock = _toBlock;
 
+				// Persis last block
+				await setContractLastBlock(
+					this.contractConfig.address,
+					this.network,
+					this.fromBlock,
+				);
 				if (_toBlock >= toBlock) {
-					await setContractLastBlock(
-						this.contractConfig.address,
-						this.network,
-						this.fromBlock,
-					);
 					break;
 				}
 			}
