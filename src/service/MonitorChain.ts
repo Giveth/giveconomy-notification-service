@@ -15,6 +15,8 @@ export class MonitorChain {
 
 	constructor(readonly chainConfig: ChainConfig) {
 		const { nodeUrl, contracts, nodeUrlWS, networkId } = chainConfig;
+		logger.info(`Monitor network:
+				${chainConfig}`);
 
 		this.provider = new ethers.providers.JsonRpcProvider(nodeUrl);
 		this.contractEventFetchers = contracts.map(
