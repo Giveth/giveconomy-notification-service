@@ -1,4 +1,4 @@
-import { config } from '@/src/configuration/config';
+import config from '@/src/configuration/config';
 import { MonitorChain } from '@/src/service/MonitorChain';
 
 const service = async () => {

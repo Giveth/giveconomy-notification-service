@@ -3,7 +3,7 @@ import logger from '@/src/utils/logger';
 import { Database, Statement } from 'sqlite3';
 import fs from 'fs';
 import path from 'path';
-import { getEnv } from '@/src/configuration/config';
+import { getEnv } from '@/src/configuration/utils';
 const mutex = new Mutex();
 
 class DB {

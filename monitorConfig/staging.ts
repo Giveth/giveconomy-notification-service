@@ -1,5 +1,8 @@
 import { Config } from '@/types/config';
 import { ContractType } from '@/src/blockchain/commons';
+import { loadEnv } from '@/src/configuration/utils';
+
+loadEnv();
 
 export const config: Config = {
 	databaseConnectionUrl: '',

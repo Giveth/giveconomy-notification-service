@@ -1,9 +1,5 @@
-import { Config } from '@/types/config';
-import { config as developConfig } from '@/config/develop';
+import { config as stagingConfig } from '@/monitorConfig/staging';
+import { config as productionConfig } from '@/monitorConfig/production';
+import { getEnv } from '@/src/configuration/utils';
 
-export const getEnv = (): 'develop' | 'production' => {
-	return process.env.NODE_ENV === 'production' ? 'production' : 'develop';
-};
-
-export const config: Config =
-	getEnv() === 'develop' ? developConfig : developConfig;
+export default getEnv() === 'staging' ? stagingConfig : productionConfig;

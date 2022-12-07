@@ -1,5 +1,5 @@
 import { createLogger, transports, format } from 'winston';
-import { config } from '@/src/configuration/config';
+import config from '@/src/configuration/config';
 import * as util from 'util';
 
 const combineMessageAndSplat = () => {
