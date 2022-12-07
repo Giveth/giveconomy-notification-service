@@ -5,6 +5,7 @@ import { EventFilterAndTransform } from '@/src/blockchain/contracts';
 import { Fragment, JsonFragment } from '@ethersproject/abi';
 import { NotificationEventType } from '@/src/notificationCenter/NotificationCenterAdapter';
 
+// Contract specific definition of events and event translate strategy
 export interface ContractHelper {
 	getAbi(): ReadonlyArray<Fragment | JsonFragment | string>;
 

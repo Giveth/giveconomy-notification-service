@@ -28,14 +28,6 @@ export type EventFilterAndTransform = {
 	transformFn: EventTransformFn;
 };
 
-// export interface EventData {
-// 	transactionHash: string;
-// 	contractTitle: string;
-// 	logIndex: number;
-// 	timestamp: number;
-// 	[key: string]: string | number;
-// }
-
 const getContractHelper = (type: ContractType): ContractHelper => {
 	switch (type) {
 		case ContractType.Unipool:
@@ -43,6 +35,7 @@ const getContractHelper = (type: ContractType): ContractHelper => {
 	}
 };
 
+// Fetches events of single contract
 export class ContractEventFetcher {
 	private readonly contract: ethers.Contract;
 	private readonly iface: ethers.utils.Interface;

@@ -6,6 +6,7 @@ import Web3 from 'web3';
 import logger from '@/src/utils/logger';
 import { ethers } from 'ethers';
 
+// Monitors single chain and all its defined contracts
 export class MonitorChain {
 	private readonly contractEventFetchers: ContractEventFetcher[];
 	private readonly provider: ethers.providers.Provider;

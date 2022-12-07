@@ -19,6 +19,7 @@ COPY src ./src
 COPY abi ./abi
 COPY data ./data
 COPY types ./types
+COPY config ./config
 COPY monitorConfig ./monitorConfig
 COPY index.ts ./
 COPY tsconfig.json ./
