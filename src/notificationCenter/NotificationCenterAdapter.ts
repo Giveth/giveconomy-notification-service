@@ -68,6 +68,9 @@ export class NotificationCenterAdapter {
 					},
 				},
 			);
+			logger.debug(
+				`Send to notification center successful: ${data.eventName}`,
+			);
 		} catch (e) {
 			logger.error('callSendNotification error', {
 				errorResponse: e?.response?.data,
