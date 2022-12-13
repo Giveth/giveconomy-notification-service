@@ -14,5 +14,10 @@ services:
     environment:
       - NODE_ENV=staging
     restart: always
-    env_file:
-      - ./config/staging.env
+    volumes:
+      # You should have a production.env file in the config folder
+      # We should bind config in two path, I think because running migrations(ts) needs one and running
+      # application(js) read from another path, if we change migrations two run them as js files then we need just on binding
+      - type: bind
+        source: ./config
+        target: /usr/src/app/build/config
