@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=staging ts-node --project ./tsconfig.json index.ts",
+    "start:docker:server": "pm2-runtime ./build/index.js",
     "tslint": "tslint -c tslint.json '{src,test,types}/**/*.ts'",
     "tslint:fix": "tslint -c tslint.json --fix '{src,test,types}/**/*.ts'",
     "clean": "rm -rf build",
@@ -36,6 +37,7 @@
     "dotenv": "^16.0.1",
     "ethers": "^5.7.2",
     "patch-package": "^6.5.0",
+    "pm2": "^5.2.2",
     "sqlite3": "^5.1.2",
     "web3": "^1.8.1",
     "web3-providers-ws": "^1.8.1",
