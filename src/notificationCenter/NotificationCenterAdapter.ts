@@ -29,6 +29,7 @@ export enum NOTIFICATION_CATEGORY {
 export enum NotificationEventType {
 	STAKE = 'Stake',
 	UNSTAKE = 'UnStake',
+	GIVPOWER_UNLOCK = 'givPower unlocked',
 }
 
 export class NotificationCenterAdapter {

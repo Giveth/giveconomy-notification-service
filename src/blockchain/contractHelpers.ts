@@ -1,5 +1,7 @@
 import UnipoolJson from '@/abi/UnipoolTokenDistributor.json';
+import GIVpowerJson from '@/abi/GIVpower.json';
 import { UnipoolTokenDistributor } from '@/types/contracts/UnipoolTokenDistributor';
+import { GIVpower } from '@/types/contracts/GIVpower';
 import { ethers } from 'ethers';
 import { EventFilterAndTransform } from '@/src/blockchain/contracts';
 import { Fragment, JsonFragment } from '@ethersproject/abi';
@@ -43,6 +45,33 @@ export class UnipoolHelper implements ContractHelper {
 						user,
 						amount: ethers.utils.formatEther(amount),
 						notificationEventType: NotificationEventType.UNSTAKE,
+					};
+				},
+			},
+		];
+	}
+}
+
+export class GIVpowerHelper implements ContractHelper {
+	getAbi() {
+		return GIVpowerJson.abi;
+	}
+
+	getEventFilterAndTransform(
+		contract: ethers.Contract,
+	): EventFilterAndTransform[] {
+		const givpowerContract = contract as GIVpower;
+		return [
+			{
+				filter: givpowerContract.filters.TokenUnlocked(),
+				transformFn: (logDescription: ethers.utils.LogDescription) => {
+					const { account, amount, round } = logDescription.args;
+					return {
+						user: account,
+						amount: ethers.utils.formatEther(amount),
+						round,
+						notificationEventType:
+							NotificationEventType.GIVPOWER_UNLOCK,
 					};
 				},
 			},
