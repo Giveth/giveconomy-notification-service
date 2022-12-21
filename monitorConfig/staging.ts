@@ -19,14 +19,14 @@ export const config: Config = {
 					address: '0xDAEa66Adc97833781139373DF5B3bcEd3fdda5b1',
 					title: 'GIVPower',
 					startBlock: 25230777,
-					type: ContractType.Unipool,
+					type: ContractType.GIVpower,
 				},
-				{
-					address: '0x93c40bCA6a854B2190a054136a316C4Df7f89f10',
-					title: 'FOX/DAI',
-					startBlock: 25240777,
-					type: ContractType.Unipool,
-				},
+				// {
+				// 	address: '0x93c40bCA6a854B2190a054136a316C4Df7f89f10',
+				// 	title: 'FOX/DAI',
+				// 	startBlock: 25240777,
+				// 	type: ContractType.Unipool,
+				// },
 			],
 		},
 		{

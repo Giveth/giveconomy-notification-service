@@ -5,6 +5,7 @@ import { ContractType } from '@/src/blockchain/commons';
 import logger from '@/src/utils/logger';
 import {
 	ContractHelper,
+	GIVpowerHelper,
 	UnipoolHelper,
 } from '@/src/blockchain/contractHelpers';
 import {
@@ -32,6 +33,8 @@ const getContractHelper = (type: ContractType): ContractHelper => {
 	switch (type) {
 		case ContractType.Unipool:
 			return new UnipoolHelper();
+		case ContractType.GIVpower:
+			return new GIVpowerHelper();
 	}
 };
 
