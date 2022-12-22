@@ -21,8 +21,8 @@ export type EventTransformFn = (
 	logDescription: ethers.utils.LogDescription,
 ) => {
 	user: string;
-	amount: string;
 	notificationEventType: NotificationEventType;
+	eventData: Object;
 };
 export type EventFilterAndTransform = {
 	filter: EventFilter;
@@ -122,13 +122,13 @@ export class ContractEventFetcher {
 						const transformFn =
 							eventTopicToTransform[event.topics[0]];
 
-						const { user, amount, notificationEventType } =
+						const { user, eventData, notificationEventType } =
 							transformFn(logDescription);
 
 						await NotificationCenterAdapter.sendNotification({
 							metadata: {
+								...eventData,
 								transactionHash,
-								amount,
 								network: this.network,
 								poolName: this.contractConfig.title,
 							},

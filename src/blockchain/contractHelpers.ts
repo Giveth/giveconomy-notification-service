@@ -32,8 +32,10 @@ export class UnipoolHelper implements ContractHelper {
 					const { user, amount } = logDescription.args;
 					return {
 						user,
-						amount: ethers.utils.formatEther(amount),
 						notificationEventType: NotificationEventType.STAKE,
+						eventData: {
+							amount: ethers.utils.formatEther(amount),
+						},
 					};
 				},
 			},
@@ -43,8 +45,10 @@ export class UnipoolHelper implements ContractHelper {
 					const { user, amount } = logDescription.args;
 					return {
 						user,
-						amount: ethers.utils.formatEther(amount),
 						notificationEventType: NotificationEventType.UNSTAKE,
+						eventData: {
+							amount: ethers.utils.formatEther(amount),
+						},
 					};
 				},
 			},
@@ -68,10 +72,12 @@ export class GIVpowerHelper implements ContractHelper {
 					const { account, amount, round } = logDescription.args;
 					return {
 						user: account,
-						amount: ethers.utils.formatEther(amount),
-						round,
 						notificationEventType:
 							NotificationEventType.GIVPOWER_UNLOCK,
+						eventData: {
+							amount: ethers.utils.formatEther(amount),
+							round: round.toNumber(),
+						},
 					};
 				},
 			},
