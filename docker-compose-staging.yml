@@ -20,4 +20,7 @@ services:
       # application(js) read from another path, if we change migrations two run them as js files then we need just on binding
       - type: bind
         source: ./config
-        target: /usr/src/app/build/config
+        target: /usr/src/app/config
+      - type: bind
+        source: ./logs
+        target: /usr/src/app/logs

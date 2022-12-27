@@ -13,7 +13,7 @@
     "build": "yarn clean && tsc -p tsconfig.json && tsc-alias && yarn copy-files && yarn link-dirs",
     "serve": "yarn build && pm2 startOrRestart ecosystem.config.js --env develop",
     "copy-files": "cp src/repository/schema.sql build/src/repository/schema.sql",
-    "link-dirs": "cd build && ln -s ../data && ln -s ../config",
+    "link-dirs": "cd build && ln -s ../data && ln -s ../config && ln -s ../logs",
     "postinstall": "patch-package"
   },
   "repository": {
@@ -35,6 +35,8 @@
     "@ethersproject/abstract-provider": "^5.7.0",
     "async-mutex": "^0.4.0",
     "axios": "^1.2.0",
+    "bunyan": "^1.8.15",
+    "bunyan-rotating-file-stream": "^2.0.3",
     "dotenv": "^16.0.1",
     "ethers": "^5.7.2",
     "patch-package": "^6.5.0",
