@@ -129,6 +129,7 @@ export class TokenDistroHelper extends ContractHelper {
 							const logDescription = this.iface.parseLog(log);
 							const { grantee, amount } = logDescription.args;
 							return {
+								logIndex: log.logIndex,
 								user: grantee,
 								notificationEventType:
 									NotificationEventType.GIVBACK_READY_TO_CLAIM,

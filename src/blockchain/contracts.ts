@@ -21,12 +21,13 @@ import {
 export type NotificationData = {
 	user: string;
 	notificationEventType: NotificationEventType;
+	logIndex?: number;
 	eventData: Object;
 };
 
 export type EventTransformFn = (
 	event: TypedEvent,
-) => NotificationData | NotificationData[] | Promise<NotificationData[]>;
+) => NotificationData | Promise<NotificationData[]>;
 export type EventFilterAndTransform = {
 	filter: EventFilter;
 	transformFn: EventTransformFn;
@@ -134,8 +135,12 @@ export class ContractEventFetcher {
 							? transformedResult
 							: [transformedResult];
 						for (const notification of notifications) {
-							const { user, eventData, notificationEventType } =
-								notification;
+							const {
+								user,
+								eventData,
+								notificationEventType,
+								logIndex: notificationLogIndex,
+							} = notification;
 							await NotificationCenterAdapter.sendNotification({
 								metadata: {
 									...eventData,
@@ -143,7 +148,7 @@ export class ContractEventFetcher {
 									network: this.network,
 									contractName: this.contractConfig.title,
 								},
-								logIndex,
+								logIndex: notificationLogIndex ?? logIndex,
 								timestamp: block.timestamp,
 								userAddress: user,
 								eventType: notificationEventType,
