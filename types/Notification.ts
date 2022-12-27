@@ -60,7 +60,7 @@ export type NotificationMetadata = {
 	 * @example "GIVpower"
 	 * @example "FOX/DAI"
 	 */
-	poolName?: string;
+	contractName?: string;
 
 	transactionHash: string;
 

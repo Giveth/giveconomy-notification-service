@@ -21,6 +21,12 @@ export const config: Config = {
 					startBlock: 24806941,
 					type: ContractType.GIVpower,
 				},
+				{
+					address: '0x18a46865AAbAf416a970eaA8625CFC430D2364A1',
+					title: 'Gnosis Token Distro',
+					startBlock: 25661123,
+					type: ContractType.TokenDistro,
+				},
 				// {
 				// 	address: '0x93c40bCA6a854B2190a054136a316C4Df7f89f10',
 				// 	title: 'FOX/DAI',

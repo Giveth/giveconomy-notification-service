@@ -30,6 +30,7 @@ export enum NotificationEventType {
 	STAKE = 'Stake',
 	UNSTAKE = 'UnStake',
 	GIVPOWER_UNLOCK = 'givPower unlocked',
+	GIVBACK_READY_TO_CLAIM = 'GIVback is ready to claim',
 }
 
 export class NotificationCenterAdapter {
