@@ -134,26 +134,28 @@ export class ContractEventFetcher {
 						)
 							? transformedResult
 							: [transformedResult];
-						for (const notification of notifications) {
-							const {
-								user,
-								eventData,
-								notificationEventType,
-								logIndex: notificationLogIndex,
-							} = notification;
-							await NotificationCenterAdapter.sendNotification({
-								metadata: {
-									...eventData,
-									transactionHash,
-									network: this.network,
-									contractName: this.contractConfig.title,
-								},
-								logIndex: notificationLogIndex ?? logIndex,
-								timestamp: block.timestamp,
-								userAddress: user,
-								eventType: notificationEventType,
-							});
-						}
+						await NotificationCenterAdapter.sendNotificationsBulk(
+							notifications.map(notification => {
+								const {
+									user,
+									eventData,
+									notificationEventType,
+									logIndex: notificationLogIndex,
+								} = notification;
+								return {
+									metadata: {
+										...eventData,
+										transactionHash,
+										network: this.network,
+										contractName: this.contractConfig.title,
+									},
+									logIndex: notificationLogIndex ?? logIndex,
+									timestamp: block.timestamp,
+									userAddress: user,
+									eventType: notificationEventType,
+								};
+							}),
+						);
 					}),
 				);
 

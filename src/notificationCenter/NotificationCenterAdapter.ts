@@ -55,6 +55,38 @@ export class NotificationCenterAdapter {
 		});
 	}
 
+	static async sendNotificationsBulk(
+		notifications: {
+			eventType: NotificationEventType;
+			metadata: NotificationMetadata;
+			userAddress: string;
+			timestamp: number;
+			logIndex: number;
+		}[],
+	): Promise<void> {
+		return NotificationCenterAdapter.callSendNotificationsBulk(
+			notifications.map(notification => {
+				const {
+					eventType,
+					userAddress,
+					metadata,
+					timestamp,
+					logIndex,
+				} = notification;
+				const trackId = `${metadata.network}-${metadata.transactionHash}-${logIndex}`;
+				return {
+					eventName: eventType,
+					userWalletAddress: userAddress as string,
+					sendEmail: false,
+					sendSegment: false,
+					creationTime: timestamp * 1000,
+					trackId,
+					metadata,
+				};
+			}),
+		);
+	}
+
 	private static async callSendNotification(
 		data: SendNotificationTypeRequest,
 	): Promise<void> {
@@ -77,6 +109,38 @@ export class NotificationCenterAdapter {
 			logger.error('callSendNotification error', {
 				errorResponse: e?.response?.data,
 				data,
+			});
+
+			// We throw exception to make event fetch process fail and retry next time
+			throw e;
+		}
+	}
+
+	private static async callSendNotificationsBulk(
+		notifications: SendNotificationTypeRequest[],
+	): Promise<void> {
+		const data = {
+			notifications,
+		};
+		try {
+			logger.debug(`Send to notification center: 
+				${JSON.stringify(notifications, null, 2)}`);
+			await axios.post(
+				`${notificationCenterBaseUrl}/notificationsBulk`,
+				data,
+				{
+					headers: {
+						Authorization: authorizationHeader,
+					},
+				},
+			);
+			logger.debug(
+				`Send bulk to notification center successful: ${notifications.length}`,
+			);
+		} catch (e) {
+			logger.error('callSendNotificationsBulk error', {
+				errorResponse: e?.response?.data,
+				data: JSON.stringify(data, null, 2),
 			});
 
 			// We throw exception to make event fetch process fail and retry next time
