@@ -5,11 +5,12 @@ import { websocketProviderOption } from '@/src/configuration/websocketProviderOp
 import Web3 from 'web3';
 import logger from '@/src/utils/logger';
 import { ethers } from 'ethers';
+import { getOriginHeader } from '@/src/utils/provider';
 
 // Monitors single chain and all its defined contracts
 export class MonitorChain {
 	private readonly contractEventFetchers: ContractEventFetcher[];
-	private readonly provider: ethers.providers.Provider;
+	private readonly provider: ethers.providers.JsonRpcProvider;
 	private readonly wsProvider: WebsocketProvider | undefined;
 	private lastFetchTimestamp: number = 0;
 	private poolTimeOut: NodeJS.Timeout;
@@ -19,7 +20,12 @@ export class MonitorChain {
 		logger.info(`Monitor network:
 				${JSON.stringify(chainConfig, null, 2)}`);
 
-		this.provider = new ethers.providers.JsonRpcProvider(nodeUrl);
+		this.provider = new ethers.providers.JsonRpcProvider({
+			url: nodeUrl,
+			headers: {
+				Origin: getOriginHeader(),
+			},
+		});
 		this.contractEventFetchers = contracts.map(
 			contract =>
 				new ContractEventFetcher(contract, this.provider, networkId),
