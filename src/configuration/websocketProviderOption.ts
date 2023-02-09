@@ -1,4 +1,5 @@
 import { WebsocketProviderOptions } from 'web3-core-helpers';
+import { getOriginHeader } from '@/src/utils/provider';
 
 export const websocketProviderOption: WebsocketProviderOptions = {
 	timeout: 30000, // ms
@@ -18,5 +19,8 @@ export const websocketProviderOption: WebsocketProviderOptions = {
 		delay: 5000, // ms
 		maxAttempts: 5,
 		onTimeout: false,
+	},
+	headers: {
+		Origin: getOriginHeader(),
 	},
 };
