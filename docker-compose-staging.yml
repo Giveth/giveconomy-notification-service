@@ -24,3 +24,6 @@ services:
       - type: bind
         source: ./logs
         target: /usr/src/app/logs
+      - type: bind
+        source: ./data
+        target: /usr/src/app/data
