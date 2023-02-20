@@ -5,6 +5,8 @@ import { ContractType } from '@/src/blockchain/commons';
 import logger from '@/src/utils/logger';
 import {
 	ContractHelper,
+	GIVpowerHelper,
+	TokenDistroHelper,
 	UnipoolHelper,
 } from '@/src/blockchain/contractHelpers';
 import {
@@ -16,13 +18,16 @@ import {
 	NotificationEventType,
 } from '@/src/notificationCenter/NotificationCenterAdapter';
 
-export type EventTransformFn = (
-	logDescription: ethers.utils.LogDescription,
-) => {
+export type NotificationData = {
 	user: string;
-	amount: string;
 	notificationEventType: NotificationEventType;
+	logIndex?: number;
+	eventData: Object;
 };
+
+export type EventTransformFn = (
+	event: TypedEvent,
+) => NotificationData | Promise<NotificationData[]>;
 export type EventFilterAndTransform = {
 	filter: EventFilter;
 	transformFn: EventTransformFn;
@@ -32,13 +37,16 @@ const getContractHelper = (type: ContractType): ContractHelper => {
 	switch (type) {
 		case ContractType.Unipool:
 			return new UnipoolHelper();
+		case ContractType.GIVpower:
+			return new GIVpowerHelper();
+		case ContractType.TokenDistro:
+			return new TokenDistroHelper();
 	}
 };
 
 // Fetches events of single contract
 export class ContractEventFetcher {
 	private readonly contract: ethers.Contract;
-	private readonly iface: ethers.utils.Interface;
 	private contractHelper: ContractHelper;
 	private _isFetching: boolean;
 	private fromBlock: number;
@@ -53,7 +61,6 @@ export class ContractEventFetcher {
 			this.contractHelper.getAbi(),
 			provider,
 		);
-		this.iface = new ethers.utils.Interface(this.contractHelper.getAbi());
 	}
 
 	async fetchEvents(
@@ -114,26 +121,41 @@ export class ContractEventFetcher {
 				await Promise.all(
 					(events as TypedEvent[]).map(async (event: TypedEvent) => {
 						const { transactionHash, getBlock, logIndex } = event;
-						const block = await getBlock();
-						const logDescription = this.iface.parseLog(event);
 						const transformFn =
 							eventTopicToTransform[event.topics[0]];
 
-						const { user, amount, notificationEventType } =
-							transformFn(logDescription);
+						const [block, transformedResult] = await Promise.all([
+							getBlock(),
+							transformFn(event),
+						]);
 
-						await NotificationCenterAdapter.sendNotification({
-							metadata: {
-								transactionHash,
-								amount,
-								network: this.network,
-								poolName: this.contractConfig.title,
-							},
-							logIndex,
-							timestamp: block.timestamp,
-							userAddress: user,
-							eventType: notificationEventType,
-						});
+						const notifications: NotificationData[] = Array.isArray(
+							transformedResult,
+						)
+							? transformedResult
+							: [transformedResult];
+						await NotificationCenterAdapter.sendNotificationsBulk(
+							notifications.map(notification => {
+								const {
+									user,
+									eventData,
+									notificationEventType,
+									logIndex: notificationLogIndex,
+								} = notification;
+								return {
+									metadata: {
+										...eventData,
+										transactionHash,
+										network: this.network,
+										contractName: this.contractConfig.title,
+									},
+									logIndex: notificationLogIndex ?? logIndex,
+									timestamp: block.timestamp,
+									userAddress: user,
+									eventType: notificationEventType,
+								};
+							}),
+						);
 					}),
 				);
 

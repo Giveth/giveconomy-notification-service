@@ -1,4 +1,5 @@
 # Logs
+.idea
 logs
 *.log
 npm-debug.log*
@@ -110,3 +111,7 @@ dist
 # Configs
 config/*
 !config/example.env
+
+# Data
+data/*
+!data/.gitkeep
