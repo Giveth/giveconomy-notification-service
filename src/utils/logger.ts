@@ -1,4 +1,4 @@
-import { transports, format } from 'winston';
+import { format } from 'winston';
 import config from '@/src/configuration/config';
 import * as util from 'util';
 
@@ -21,7 +21,7 @@ function createBunyanLogger() {
 				rotateExisting: true, // Give ourselves a clean file when we start up, based on period
 				threshold: '100m', // Rotate log files larger than 100 megabytes
 				totalSize: '500m', // Don't keep more than 500 megabytes of archived log files
-				gzip: false, // Compress the archive log files to save space
+				gzip: true, // Compress the archive log files to save space
 			}),
 		},
 	];
