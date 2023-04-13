@@ -12,7 +12,7 @@ export const config: Config = {
 			networkId: 100, // Gnosis-chain
 			nodeUrl: process.env.GNOSIS_PROVIDER as string,
 			nodeUrlWS: process.env.GNOSIS_PROVIDER_WS,
-			pollTimeMS: 10_000, // 30 Seconds
+			pollTimeMS: Number(process.env.GNOSIS_POLL_TIME) || 30_000, // 30 Seconds
 			maxFetchBlockRange: 1_000,
 			contracts: [
 				{

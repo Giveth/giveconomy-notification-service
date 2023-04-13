@@ -119,32 +119,36 @@ export class NotificationCenterAdapter {
 	private static async callSendNotificationsBulk(
 		notifications: SendNotificationTypeRequest[],
 	): Promise<void> {
-		const data = {
-			notifications,
-		};
-		try {
-			logger.debug(`Send to notification center: 
+		const limit = Number(process.env.NOTIFICATION_CENTER_BULK_LIMIT || 100);
+		for (let i = 0; i < notifications.length; i += limit) {
+			const notificationsChunk = notifications.slice(i, i + limit);
+			const data = {
+				notifications: notificationsChunk,
+			};
+			try {
+				logger.debug(`Send to notification center: 
 				${JSON.stringify(notifications, null, 2)}`);
-			await axios.post(
-				`${notificationCenterBaseUrl}/notificationsBulk`,
-				data,
-				{
-					headers: {
-						Authorization: authorizationHeader,
+				await axios.post(
+					`${notificationCenterBaseUrl}/notificationsBulk`,
+					data,
+					{
+						headers: {
+							Authorization: authorizationHeader,
+						},
 					},
-				},
-			);
-			logger.debug(
-				`Send bulk to notification center successful: ${notifications.length}`,
-			);
-		} catch (e) {
-			logger.error('callSendNotificationsBulk error', {
-				errorResponse: e?.response?.data,
-				data: JSON.stringify(data, null, 2),
-			});
+				);
+				logger.debug(
+					`Send bulk to notification center successful: ${notifications.length}`,
+				);
+			} catch (e) {
+				logger.error('callSendNotificationsBulk error', {
+					errorResponse: e?.response?.data,
+					data: JSON.stringify(data, null, 2),
+				});
 
-			// We throw exception to make event fetch process fail and retry next time
-			throw e;
+				// We throw exception to make event fetch process fail and retry next time
+				throw e;
+			}
 		}
 	}
 }
