@@ -55,7 +55,7 @@ export const config: Config = {
 			networkId: 420, // Optimism Goerli
 			nodeUrl: process.env.OPTIMISM_GOERLI_PROVIDER as string,
 			nodeUrlWS: process.env.OPTIMISM_GOERLI_PROVIDER_WS,
-			pollTimeMS: 240_000, // 24 seconds
+			pollTimeMS: Number(process.env.OPTIMISM_GOERLI_POLL_TIME) || 30_000, // 30 Seconds
 			maxFetchBlockRange: 1_000,
 			contracts: [
 				{
