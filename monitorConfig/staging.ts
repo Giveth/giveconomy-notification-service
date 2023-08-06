@@ -50,5 +50,27 @@ export const config: Config = {
 		// 		},
 		// 	],
 		// },
+
+		{
+			networkId: 420, // Optimism Goerli
+			nodeUrl: process.env.OPTIMISM_GOERLI_PROVIDER as string,
+			nodeUrlWS: process.env.OPTIMISM_GOERLI_PROVIDER_WS,
+			pollTimeMS: 240_000, // 24 seconds
+			maxFetchBlockRange: 1_000,
+			contracts: [
+				{
+					address: '0x632AC305ed88817480d12155A7F1244cC182C298',
+					title: 'GIVPower',
+					startBlock: 12436803,
+					type: ContractType.GIVpower,
+				},
+				{
+					address: '0x8D2cBce8ea0256bFFBa6fa4bf7CEC46a1d9b43f6',
+					title: 'Gnosis Token Distro',
+					startBlock: 9371285,
+					type: ContractType.TokenDistro,
+				},
+			],
+		},
 	],
 };
