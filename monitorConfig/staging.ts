@@ -17,7 +17,7 @@ export const config: Config = {
 			contracts: [
 				{
 					address: '0xDAEa66Adc97833781139373DF5B3bcEd3fdda5b1',
-					title: 'GIVPower',
+					title: 'Gnosis GIVPower',
 					startBlock: 24806941,
 					type: ContractType.GIVpower,
 				},
@@ -50,5 +50,27 @@ export const config: Config = {
 		// 		},
 		// 	],
 		// },
+
+		{
+			networkId: 420, // Optimism Goerli
+			nodeUrl: process.env.OPTIMISM_GOERLI_PROVIDER as string,
+			nodeUrlWS: process.env.OPTIMISM_GOERLI_PROVIDER_WS,
+			pollTimeMS: Number(process.env.OPTIMISM_GOERLI_POLL_TIME) || 30_000, // 30 Seconds
+			maxFetchBlockRange: 1_000,
+			contracts: [
+				{
+					address: '0x632AC305ed88817480d12155A7F1244cC182C298',
+					title: 'Optimism Görli GIVPower',
+					startBlock: 12436803,
+					type: ContractType.GIVpower,
+				},
+				{
+					address: '0x8D2cBce8ea0256bFFBa6fa4bf7CEC46a1d9b43f6',
+					title: 'Optimism Görli Token Distro',
+					startBlock: 9371285,
+					type: ContractType.TokenDistro,
+				},
+			],
+		},
 	],
 };
