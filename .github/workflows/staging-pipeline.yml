@@ -37,9 +37,7 @@ jobs:
       - name: Staging deploy
         uses: garygrossgarten/github-action-ssh@v0.6.4
         with:
-          command: cd giveconomy-notification-service && git checkout staging && git pull &&  docker-compose -f docker-compose-staging.yml 
-pull && docker-compose -f docker-compose-staging.yml down && docker-compose -f docker-compose-staging.yml up -d && docker image prune -a 
---force;
+          command: cd giveconomy-notification-service && git checkout staging && git pull &&  docker-compose -f docker-compose-staging.yml pull && docker-compose -f docker-compose-staging.yml down && docker-compose -f docker-compose-staging.yml up -d && docker image prune -a --force;
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USERNAME }}
           privateKey: ${{ secrets.STAGING_PRIVATE_KEY}}
