@@ -44,7 +44,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd giveth-all
-            docker-compose stop givEconomy-notification-service
-            docker-compose pull givEconomy-notification-service
-            docker-compose up -d givEconomy-notification-service
+            docker compose stop givEconomy-notification-service
+            docker compose pull givEconomy-notification-service
+            docker compose up -d givEconomy-notification-service
             docker image prune -a --force
