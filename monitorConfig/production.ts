@@ -37,6 +37,12 @@ export const config: Config = {
 			maxFetchBlockRange: 1_000,
 			contracts: [
 				{
+					address: '0x301C739CF6bfb6B47A74878BdEB13f92F13Ae5E7',
+					title: 'Optimism GIVPower',
+					startBlock: 108350094,
+					type: ContractType.GIVpower,
+				},
+				{
 					address: '0xE3Ac7b3e6B4065f4765d76fDC215606483BF3bD1',
 					title: 'Optimism Token Distro',
 					startBlock: 108004007,
