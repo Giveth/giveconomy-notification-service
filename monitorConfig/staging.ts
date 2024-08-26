@@ -72,5 +72,26 @@ export const config: Config = {
 				},
 			],
 		},
+		{
+			networkId: 10, // ZKEVM
+			nodeUrl: process.env.ZKEVM_PROVIDER as string,
+			nodeUrlWS: process.env.ZKEVM_PROVIDER_WS,
+			pollTimeMS: Number(process.env.ZKEVM_POLL_TIME) || 30_000, // 30 Seconds
+			maxFetchBlockRange: 1_000,
+			contracts: [
+				{
+					address: '0x7E9f30A74fCDf035018bc007f9930aA171863E33',
+					title: 'ZKEVM GIVPower',
+					startBlock: 5386646,
+					type: ContractType.GIVpower,
+				},
+				{
+					address: '0x2Df3e67Be4e441Cddd2d29c3d41DFd7D516f18e6',
+					title: 'ZKEVM Token Distro',
+					startBlock: 5356116,
+					type: ContractType.TokenDistro,
+				},
+			],
+		},
 	],
 };
