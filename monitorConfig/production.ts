@@ -51,7 +51,7 @@ export const config: Config = {
 			],
 		},
 		{
-			networkId: 10, // ZKEVM
+			networkId: 1101, // ZKEVM
 			nodeUrl: process.env.ZKEVM_PROVIDER as string,
 			nodeUrlWS: process.env.ZKEVM_PROVIDER_WS,
 			pollTimeMS: Number(process.env.ZKEVM_POLL_TIME) || 30_000, // 30 Seconds
